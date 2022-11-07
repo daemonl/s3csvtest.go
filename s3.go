@@ -31,13 +31,16 @@ func (f *S3Mock) PutObjectWithContext(ctx aws.Context, input *s3.PutObjectInput,
 	return &s3.PutObjectOutput{}, nil
 }
 
-func (f *S3Mock) AssertCSV(t testing.TB, bucket, key string, assertions []CSVAssertion) {
-	t.Helper()
-
+func (f *S3Mock) GetObject(t testing.TB, bucket, key string) []byte {
 	obj, ok := f.objects[fmt.Sprintf("s3://%s/%s", bucket, key)]
 	if !ok {
 		t.Fatalf("no object uploaded to bucket %s key %s", bucket, key)
 	}
+	return obj
+}
 
+func (f *S3Mock) AssertCSV(t testing.TB, bucket, key string, assertions []CSVAssertion) {
+	t.Helper()
+	obj := f.GetObject(t, bucket, key)
 	AssertCSV(t, obj, assertions)
 }
